@@ -17,7 +17,7 @@ import (
 
 //TODO this should NOT be a global
 var CommandStr string
-var IdleInt int = 88
+var IdleInt int = 100
 
 func main() {
 	command := make(chan string, 1)
