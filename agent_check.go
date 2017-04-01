@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"io"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -16,6 +17,7 @@ import (
 
 //TODO this should NOT be a global
 var CommandStr string
+var IdleInt int = 88
 
 func main() {
 	command := make(chan string, 1)
@@ -31,7 +33,7 @@ func main() {
 		log.Fatalln("there was an error:", err)
 	}
 	go Listen(ln2, command)
-
+	go updateIdle()
 	go updateCommand(command)
 
 	c := make(chan os.Signal, 1)
@@ -46,13 +48,22 @@ func updateCommand(command chan string) {
 	}
 }
 
+func updateIdle() {
+	var sample [2]systemstat.CPUSample
+	for {
+		for i := 0; i < 2; i++ {
+			sample[i] = systemstat.GetCPUSample()
+			time.Sleep(5000 * time.Millisecond)
+		}
+		avg := systemstat.GetSimpleCPUAverage(sample[0], sample[1])
+		idlePercent := avg.IdlePct
+		IdleInt = int(idlePercent)
+		fmt.Println("idleInt:", IdleInt, "sample0:", int(sample[0].User), "sample1:", int(sample[1].User))
+	}
+}
+
 func get_idle() (out int) {
-	sample1 := systemstat.GetCPUSample()
-	time.Sleep(100 * time.Millisecond)
-	sample2 := systemstat.GetCPUSample()
-	avg := systemstat.GetSimpleCPUAverage(sample1, sample2)
-	idlePercent := avg.IdlePct
-	return int(idlePercent)
+	return int(IdleInt)
 }
 
 func handleTalk(conn net.Conn, command <-chan string) {

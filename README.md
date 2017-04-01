@@ -1,6 +1,6 @@
 # agent_check
 
-Inspired by [this post](http://blog.loadbalancer.org/open-source-windows-service-for-reporting-server-load-back-to-haproxy-load-balancer-feedback-agent/)
+Checks CPU Idle Avarage in background
 
 Responds to telnet request with CPU Idle %. 
 Also opens up a command channel on localhost that will accept 
